@@ -10,27 +10,21 @@ import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 
 
-import
-
 public class Main {
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         // Press Opt+Enter with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
         String key = "xxx";
         String secret = "xxx";
-        String url = gen_query_url("baidu.com", key, secret);
+        String url = gen_token(key, secret);
         System.out.println(url);
     }
 
-    public static String gen_query_url(String value, String key, String secret) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        String baseUrl = "https://www.xxx.miayc.cn/v2/search";
+    public static String gen_token(String key, String secret) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         long current_time = System.currentTimeMillis();
-        String totp = gen_ti_totp(secret, current_time);
-        String token_tmp = key + totp;
-        String param = String.format("q=%s", value);
-        String token = md5(param + md5(token_tmp));
-        String param_token = String.format("token=%s", token);
-        return baseUrl + "?" + param + "&" + param_token;
+        String totp = gen_totp(secret, current_time);
+        String token = md5(totp);
+        return token;
     }
 
     public static String md5(String input) {
@@ -55,7 +49,7 @@ public class Main {
         }
     }
 
-    public static String gen_ti_totp(String secret, long time) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public static String gen_totp(String secret, long time) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
         String hexTime = OTP.timeInHex(time, 30);
         String code = OTP.create(secret, hexTime, 6, Type.TOTP);
         return code;
